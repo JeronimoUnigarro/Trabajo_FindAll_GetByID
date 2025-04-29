@@ -18,7 +18,7 @@ public class ActorRepository implements Repository<Actor> {
         try (Connection conn = DatabaseConnection.getInstance();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM actor")) {
-            
+
             while (rs.next()) {
                 Actor actor = new Actor();
                 actor.setActorID(rs.getInt("actor_id"));
@@ -37,8 +37,8 @@ public class ActorRepository implements Repository<Actor> {
         Actor actor = null;
         try (Connection conn = DatabaseConnection.getInstance();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM actor WHERE actor_id = ?")) {
-            
-            stmt.setInt(1, id);  // Establecer el parámetro del ID
+
+            stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     actor = new Actor();
@@ -54,12 +54,40 @@ public class ActorRepository implements Repository<Actor> {
     }
 
     @Override
-    public void save(Actor t) {
-        
+    public void save(Actor actor) {
+        try (Connection conn = DatabaseConnection.getInstance();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO actor (first_name, last_name) VALUES (?, ?)")) {
+
+            stmt.setString(1, actor.getFirstName());
+            stmt.setString(2, actor.getLastName());
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(Actor actor) {
+        try (Connection conn = DatabaseConnection.getInstance();
+             PreparedStatement stmt = conn.prepareStatement("UPDATE actor SET first_name = ?, last_name = ? WHERE actor_id = ?")) {
+
+            stmt.setString(1, actor.getFirstName());
+            stmt.setString(2, actor.getLastName());
+            stmt.setInt(3, actor.getActorID());
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void delete(Integer id) {
-        
+        try (Connection conn = DatabaseConnection.getInstance();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM actor WHERE actor_id = ?")) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
